@@ -1,6 +1,5 @@
 /*
 Copyright © 2022 Sam Wood <samwooddev@gmail.com>
-
 */
 package main
 
