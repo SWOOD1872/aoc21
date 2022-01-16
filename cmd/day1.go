@@ -15,8 +15,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// input is the path to input data
-var input string
+var (
+	input string // path to input data
+
+	ErrEmptyInput error = errors.New("input should not be empty")
+)
 
 // day1Cmd represents the day1 command
 var day1Cmd = &cobra.Command{
@@ -28,10 +31,11 @@ var day1Cmd = &cobra.Command{
 var part1Cmd = &cobra.Command{
 	Use:     "part1",
 	Short:   "Advent of Code 2021 day 1 part 1 solution",
-	PreRunE: checkInput,
+	PreRunE: validateInput,
 	RunE:    part1,
 }
 
+// part1 is the day 1 part 1 solution code
 func part1(cmd *cobra.Command, args []string) error {
 	data, err := os.Open(input)
 	if err != nil {
@@ -74,10 +78,11 @@ func part1(cmd *cobra.Command, args []string) error {
 var part2Cmd = &cobra.Command{
 	Use:     "part2",
 	Short:   "Advent of Code 2021 day 1 part 2 solution",
-	PreRunE: checkInput,
+	PreRunE: validateInput,
 	RunE:    part2,
 }
 
+// part2 is the day 1 part 2 solution code
 func part2(cmd *cobra.Command, args []string) error {
 	data, err := os.Open(input)
 	if err != nil {
@@ -118,10 +123,10 @@ func part2(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// Checks the input file and converts it to an absolute path
-func checkInput(cmd *cobra.Command, args []string) error {
+// validateInput does validation on the input value and converts it to an absolute path
+func validateInput(cmd *cobra.Command, args []string) error {
 	if input == "" {
-		return errors.New("input should not be empty")
+		return ErrEmptyInput
 	}
 
 	var err error
