@@ -13,21 +13,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type position struct {
+type part1Position struct {
 	horizontal int
 	depth      int
 }
 
-func (p *position) move(n int) {
+func (p *part1Position) move(n int) {
 	p.horizontal += n
 }
 
-func (p *position) climb(n int) {
+func (p *part1Position) climb(n int) {
 	p.depth -= n
 }
 
-func (p *position) dive(n int) {
+func (p *part1Position) dive(n int) {
 	p.depth += n
+}
+
+type part2Position struct {
+	horizontal int
+	depth      int
+	aim        int
+}
+
+func (p *part2Position) move(n int) {
+	p.horizontal += n
+	p.depth += p.aim * n
+}
+
+func (p *part2Position) climb(n int) {
+	p.aim -= n
+}
+
+func (p *part2Position) dive(n int) {
+	p.aim += n
 }
 
 // day2Cmd represents the day2 command
@@ -52,7 +71,7 @@ func day2Part1(cmd *cobra.Command, args []string) error {
 	}
 	defer data.Close()
 
-	p := position{0, 0}
+	p := part1Position{0, 0}
 
 	scanner := bufio.NewScanner(data)
 	for scanner.Scan() {
@@ -87,6 +106,34 @@ var day2Part2Cmd = &cobra.Command{
 
 // day2Part2 is the part 2 solution code
 func day2Part2(cmd *cobra.Command, args []string) error {
+	data, err := os.Open(input)
+	if err != nil {
+		return err
+	}
+	defer data.Close()
+
+	p := part2Position{0, 0, 0}
+
+	scanner := bufio.NewScanner(data)
+	for scanner.Scan() {
+		line := strings.Split(scanner.Text(), " ")
+		i := line[0]
+		v, _ := strconv.Atoi(line[1])
+
+		if strings.ToLower(i) == "forward" {
+			p.move(v)
+		}
+		if strings.ToLower(i) == "down" {
+			p.dive(v)
+		}
+		if strings.ToLower(i) == "up" {
+			p.climb(v)
+		}
+	}
+
+	answer := p.horizontal * p.depth
+	fmt.Printf("Answer: %v\n", answer)
+
 	return nil
 }
 
