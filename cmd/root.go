@@ -1,13 +1,20 @@
 /*
 Copyright © 2022 Sam Wood <samwooddev@gmail.com>
-
 */
 package cmd
 
 import (
+	"errors"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	input string // path to input data
+
+	ErrEmptyInput error = errors.New("input should not be empty")
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -34,14 +41,21 @@ func Execute() {
 	}
 }
 
+// ValidateInput does validation on the input value and converts it to an absolute path
+func ValidateInput(cmd *cobra.Command, args []string) error {
+	if input == "" {
+		return ErrEmptyInput
+	}
+
+	var err error
+	input, err = filepath.Abs(input)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.aoc21.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

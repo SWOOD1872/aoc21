@@ -1,24 +1,15 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2022 Sam Wood <samwooddev@gmail.com>
 */
 package cmd
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 
 	"github.com/spf13/cobra"
-)
-
-var (
-	input string // path to input data
-
-	ErrEmptyInput error = errors.New("input should not be empty")
 )
 
 // day1Cmd represents the day1 command
@@ -27,16 +18,16 @@ var day1Cmd = &cobra.Command{
 	Short: "Advent of Code 2021 day 1 solutions",
 }
 
-// part1Cmd represents the part1 command
-var part1Cmd = &cobra.Command{
+// day1Part1Cmd represents the part1 command
+var day1Part1Cmd = &cobra.Command{
 	Use:     "part1",
 	Short:   "Advent of Code 2021 day 1 part 1 solution",
-	PreRunE: validateInput,
-	RunE:    part1,
+	PreRunE: ValidateInput,
+	RunE:    day1Part1,
 }
 
-// part1 is the day 1 part 1 solution code
-func part1(cmd *cobra.Command, args []string) error {
+// day1Part1 is the part 1 solution code
+func day1Part1(cmd *cobra.Command, args []string) error {
 	data, err := os.Open(input)
 	if err != nil {
 		return err
@@ -74,16 +65,16 @@ func part1(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// part2Cmd represents the part2 command
-var part2Cmd = &cobra.Command{
+// day1Part2Cmd represents the part2 command
+var day1Part2Cmd = &cobra.Command{
 	Use:     "part2",
 	Short:   "Advent of Code 2021 day 1 part 2 solution",
-	PreRunE: validateInput,
-	RunE:    part2,
+	PreRunE: ValidateInput,
+	RunE:    day1Part2,
 }
 
-// part2 is the day 1 part 2 solution code
-func part2(cmd *cobra.Command, args []string) error {
+// day1Part2 is the part 2 solution code
+func day1Part2(cmd *cobra.Command, args []string) error {
 	data, err := os.Open(input)
 	if err != nil {
 		return err
@@ -123,29 +114,14 @@ func part2(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// validateInput does validation on the input value and converts it to an absolute path
-func validateInput(cmd *cobra.Command, args []string) error {
-	if input == "" {
-		return ErrEmptyInput
-	}
-
-	var err error
-	input, err = filepath.Abs(input)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func init() {
 	rootCmd.AddCommand(day1Cmd)
-	day1Cmd.AddCommand(part1Cmd)
-	day1Cmd.AddCommand(part2Cmd)
+	day1Cmd.AddCommand(day1Part1Cmd)
+	day1Cmd.AddCommand(day1Part2Cmd)
 
-	part1Cmd.Flags().StringVarP(&input, "input", "i", "", "solution input data")
-	part1Cmd.MarkFlagRequired("input")
+	day1Part1Cmd.Flags().StringVarP(&input, "input", "i", "", "solution input data")
+	day1Part1Cmd.MarkFlagRequired("input")
 
-	part2Cmd.Flags().StringVarP(&input, "input", "i", "", "solution input data")
-	part2Cmd.MarkFlagRequired("input")
+	day1Part2Cmd.Flags().StringVarP(&input, "input", "i", "", "solution input data")
+	day1Part2Cmd.MarkFlagRequired("input")
 }
