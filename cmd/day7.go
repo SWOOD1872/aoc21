@@ -79,7 +79,48 @@ var day7Part2Cmd = &cobra.Command{
 
 // day7Part2 is the part 2 solution code
 func day7Part2(cmd *cobra.Command, args []string) error {
+	data, err := os.Open(input)
+	if err != nil {
+		return err
+	}
+	defer data.Close()
+
+	scanner := bufio.NewScanner(data)
+	var horizontalPositions []int
+	var num int
+	for scanner.Scan() {
+		line := strings.Split(scanner.Text(), ",")
+		for _, numStr := range line {
+			num, err = strconv.Atoi(numStr)
+			if err != nil {
+				return err
+			}
+			horizontalPositions = append(horizontalPositions, num)
+		}
+	}
+	sort.Ints(horizontalPositions)
+
+	minPos := horizontalPositions[0]
+	maxPos := horizontalPositions[len(horizontalPositions)-1]
+	var costs []int
+	for i := minPos; i < maxPos; i++ {
+		cost := 0
+		for _, p := range horizontalPositions {
+			moves := math.Abs(float64(p - i))
+			cost += costOfMoves(moves)
+		}
+		costs = append(costs, cost)
+	}
+	sort.Ints(costs)
+
+	fmt.Printf("Answer: %d\n", costs[0])
+
 	return nil
+}
+
+func costOfMoves(moves float64) int {
+	c := ((moves * moves) + moves) / 2
+	return int(c)
 }
 
 func init() {
