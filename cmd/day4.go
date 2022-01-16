@@ -7,7 +7,6 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -50,12 +49,12 @@ func day4Part1(cmd *cobra.Command, args []string) error {
 	for _, v := range numsStr {
 		i, err := strconv.Atoi(v)
 		if err != nil {
-			log.Fatalln(err)
+			return err
 		}
 		nums = append(nums, i)
 	}
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 
 	// Parse the game boards
@@ -68,7 +67,7 @@ func day4Part1(cmd *cobra.Command, args []string) error {
 			}
 			i, err := strconv.Atoi(s)
 			if err != nil {
-				log.Fatalln(err)
+				return err
 			}
 			board = append(board, i)
 		}
@@ -88,7 +87,7 @@ func day4Part1(cmd *cobra.Command, args []string) error {
 			// [2] check for a win condition
 			win, err := bingo(b)
 			if err != nil {
-				log.Fatalln(err)
+				return err
 			}
 			if win {
 				// [3] sum the answer
@@ -119,6 +118,78 @@ var day4Part2Cmd = &cobra.Command{
 
 // day4Part2 is the part 2 solution code
 func day4Part2(cmd *cobra.Command, args []string) error {
+	data, err := os.Open(input)
+	if err != nil {
+		return err
+	}
+	defer data.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(data)
+	for scanner.Scan() {
+		line := scanner.Text()
+		lines = append(lines, line)
+	}
+
+	// Parse out the bingo numbers
+	numsStr := strings.Split(lines[0], ",")
+	var nums []int
+	for _, v := range numsStr {
+		i, err := strconv.Atoi(v)
+		if err != nil {
+			return err
+		}
+		nums = append(nums, i)
+	}
+	if err != nil {
+		return err
+	}
+
+	// Parse the game boards
+	var boards [][]int
+	for i := 2; i < len(lines); i += 6 {
+		var board []int
+		for _, s := range strings.Split(strings.Join(lines[i:i+5], " "), " ") {
+			if s == "" {
+				continue
+			}
+			i, err := strconv.Atoi(s)
+			if err != nil {
+				return err
+			}
+			board = append(board, i)
+		}
+		boards = append(boards, board)
+	}
+
+	// Mark each number [1], check for a win condition [2] and sum the answer [3]
+	boardWin := make([]bool, len(boards))
+	for _, n := range nums {
+		for b := range boards {
+			if boardWin[b] {
+				continue
+			}
+			for i, v := range boards[b] {
+				// [1] mark each number
+				if v == n {
+					boards[b][i] = -1
+					break
+				}
+			}
+			// [2] check for a win condition
+			win, err := bingo(boards[b])
+			if err != nil {
+				return err
+			}
+			if win {
+				// [3] sum the answer
+				sum := sumUnmarked(boards[b], -1)
+				answer := n * sum
+				fmt.Println("Answer:", answer)
+				boardWin[b] = true
+			}
+		}
+	}
 	return nil
 }
 
@@ -167,6 +238,28 @@ func bingo(b []int) (bool, error) {
 	}
 
 	return false, nil
+}
+
+// Returns the sum of unmarked numbers on a bingo board
+func sumUnmarked(b []int, i int) int {
+	s := 0
+	for _, n := range b {
+		if n != i {
+			s += n
+		}
+	}
+	return s
+}
+
+// Remove an item from a multi-dimensional slice
+func removeItem2D(boards [][]int, i int) [][]int {
+	var newBoards [][]int
+	for x, b := range boards {
+		if x != i {
+			newBoards = append(newBoards, b)
+		}
+	}
+	return newBoards
 }
 
 func init() {
